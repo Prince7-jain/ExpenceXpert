@@ -4,8 +4,8 @@ A comprehensive personal finance tracker with modern dark theme UI built with Ne
 
 ## 🌐 Live Demo
 
-- **Frontend**: [https://work-1-icutqkfevhwhiyhf.prod-runtime.all-hands.dev](https://work-1-icutqkfevhwhiyhf.prod-runtime.all-hands.dev)
-- **Backend API**: [https://work-2-icutqkfevhwhiyhf.prod-runtime.all-hands.dev](https://work-2-icutqkfevhwhiyhf.prod-runtime.all-hands.dev)
+- **Frontend**: [https://expencexpert.vercel.app](https://expencexpert.vercel.app)
+- **Backend API**: [https://expencexpert-api.vercel.app](https://expencexpert-api.vercel.app)
 
 ![ExpenseXpert Dashboard](https://img.shields.io/badge/Status-Live-brightgreen)
 ![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)
@@ -109,13 +109,13 @@ personal-finance-tracker/
    cd personal-finance-tracker
    ```
 
-2. **Set up the backend**
+2. **Install all dependencies**
    ```bash
-   cd server
-   npm install
+   npm run install-all
    ```
 
 3. **Configure environment variables**
+
    Create `.env` file in the server directory:
    ```env
    # Database
@@ -127,37 +127,32 @@ personal-finance-tracker/
    JWT_EXPIRES_IN=7d
 
    # Server
-   PORT=5000
+   PORT=12001
    NODE_ENV=development
    ```
 
-4. **Set up the frontend**
-   ```bash
-   cd ../client
-   npm install
-   ```
-
-5. **Configure frontend environment**
    Create `.env.local` file in the client directory:
    ```env
-   NEXT_PUBLIC_API_URL=http://localhost:5000/api
+   NEXT_PUBLIC_API_URL=http://localhost:12001/api
    ```
 
 ### Running the Application
 
-1. **Start the backend server**
-   ```bash
-   cd server
-   npm run dev
-   ```
-   Server will run on http://localhost:5000
+You can run both the client and server concurrently using the following commands:
 
-2. **Start the frontend development server**
+1. **Development mode**
    ```bash
-   cd client
    npm run dev
    ```
-   Frontend will run on http://localhost:3000
+   This will start:
+   - Frontend on http://localhost:3000
+   - Backend on http://localhost:12001
+
+2. **Production mode**
+   ```bash
+   npm run build
+   npm run start
+   ```
 
 3. **Access the application**
    Open your browser and navigate to http://localhost:3000
@@ -228,11 +223,10 @@ Built with shadcn/ui components:
 2. Set environment variables in Vercel dashboard
 3. Deploy automatically on push to main branch
 
-### Backend (Railway/Render)
-1. Connect your GitHub repository
-2. Set environment variables
-3. Configure build and start commands
-4. Deploy with automatic SSL
+### Backend (Vercel)
+1. Connect your GitHub repository to Vercel
+2. Set environment variables in Vercel dashboard
+3. Deploy automatically on push to main branch
 
 ## 🤝 Contributing
 

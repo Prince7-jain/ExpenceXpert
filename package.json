@@ -1,0 +1,14 @@
+{
+  "name": "expencexpert",
+  "version": "1.0.0",
+  "description": "ExpenseXpert - Full Stack Expense Tracking Application",
+  "scripts": {
+    "install-all": "npm install && cd client && npm install && cd ../server && npm install",
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
+    "build": "cd client && npm run build && cd ../server && npm run build",
+    "start": "concurrently \"cd server && npm start\" \"cd client && npm start\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 

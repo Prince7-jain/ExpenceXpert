@@ -16,17 +16,22 @@ const PORT = process.env.PORT || 12001;
 // Connect to MongoDB
 connectDB();
 
-// Middleware
-app.use(helmet());
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:12000',
-    'https://work-1-icutqkfevhwhiyhf.prod-runtime.all-hands.dev'
-  ],
-  credentials: true
+// Security middleware
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "unsafe-none" }
 }));
-app.use(morgan('combined'));
+
+// CORS configuration
+app.use(cors({
+  origin: true, // Allow all origins in development
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Middleware
+app.use(morgan('dev')); // Changed to dev for better logging
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,13 +42,18 @@ app.use('/api/users', userRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ message: 'ExpenseXpert API is running!', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV
+  });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Server Error:', err);
   res.status(500).json({ 
+    success: false,
     message: 'Something went wrong!', 
     error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error' 
   });
@@ -51,11 +61,15 @@ app.use((err, req, res, next) => {
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+  res.status(404).json({ 
+    success: false,
+    message: 'Route not found' 
+  });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 ExpenseXpert server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
   console.log(`📊 Database: ${process.env.DB_NAME}`);
-});
+  console.log(`🔗 API URL: http://localhost:${PORT}/api`);
+}); 

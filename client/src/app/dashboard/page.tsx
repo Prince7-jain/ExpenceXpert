@@ -220,7 +220,7 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Recent Transactions */}
+        {/* Recent Transactions and Quick Actions */}
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -259,37 +259,21 @@ export default function DashboardPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className={`text-sm font-medium ${getTransactionColor(transaction.type)}`}>
-                          {transaction.type === 'income' ? '+' : '-'}
-                          {formatCurrency(transaction.amount)}
-                        </p>
-                        <Badge variant="outline" className="text-xs">
-                          {transaction.paymentMethod}
-                        </Badge>
+                      <div className={`text-sm font-medium ${getTransactionColor(transaction.type)}`}>
+                        {transaction.type === 'income' ? '+' : '-'}
+                        {formatCurrency(transaction.amount)}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No transactions yet</p>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Start by adding your first transaction
-                  </p>
-                  <Link href="/transactions/new">
-                    <Button size="sm">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Transaction
-                    </Button>
-                  </Link>
+                <div className="text-center py-6 text-muted-foreground">
+                  No recent transactions
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
           <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>

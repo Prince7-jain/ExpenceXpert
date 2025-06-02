@@ -13,7 +13,7 @@ import {
   User
 } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:12001/api';
 
 // Create axios instance
 const api = axios.create({
@@ -21,6 +21,8 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
+  timeout: 10000, // 10 second timeout
 });
 
 // Request interceptor to add auth token
@@ -33,6 +35,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -47,6 +50,15 @@ api.interceptors.response.use(
       localStorage.removeItem('user');
       window.location.href = '/auth/login';
     }
+    
+    // Handle network errors
+    if (!error.response) {
+      console.error('Network Error:', error.message);
+      throw new Error('Unable to connect to the server. Please check if the server is running and try again.');
+    }
+    
+    // Log the error for debugging
+    console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
@@ -224,6 +236,17 @@ export const healthAPI = {
     const response = await api.get('/health');
     return response.data;
   },
+};
+
+// Add a health check function
+export const checkServerHealth = async () => {
+  try {
+    const response = await api.get('/health');
+    return response.data;
+  } catch (error) {
+    console.error('Server health check failed:', error);
+    throw error;
+  }
 };
 
 export default api;
