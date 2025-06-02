@@ -1,11 +1,12 @@
-
 import React, { ReactNode, useState, useEffect } from 'react';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
-import { Home, PieChart, BarChart, CircleDollarSign, Calendar, Plus, Settings, User } from "lucide-react";
+import { Home, PieChart, BarChart, CircleDollarSign, Calendar, Plus, Settings, User, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import UserMenu from "@/components/UserMenu";
 import NewTransactionDialog from "@/components/NewTransactionDialog";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 // Add this to global Window interface
 declare global {
@@ -88,69 +89,94 @@ const DashboardLayout = ({ children, activeTab = "dashboard", onTabChange }: Das
     setIsMobileDialogOpen(true);
   };
 
+  const sidebarContent = (
+    <div className="space-y-1">
+      <SidebarItem 
+        icon={Home} 
+        label="Dashboard" 
+        active={activeTab === "dashboard"} 
+        onClick={() => handleTabClick("dashboard")} 
+      />
+      <SidebarItem 
+        icon={CircleDollarSign} 
+        label="Transactions" 
+        active={activeTab === "transactions"} 
+        onClick={() => handleTabClick("transactions")} 
+      />
+      <SidebarItem 
+        icon={PieChart} 
+        label="Categories" 
+        active={activeTab === "categories"} 
+        onClick={() => handleTabClick("categories")} 
+      />
+      <SidebarItem 
+        icon={BarChart} 
+        label="Reports" 
+        active={activeTab === "reports"} 
+        onClick={() => handleTabClick("reports")} 
+      />
+      <SidebarItem 
+        icon={Calendar} 
+        label="Budget" 
+        active={activeTab === "budget"} 
+        onClick={() => handleTabClick("budget")} 
+      />
+      <SidebarItem 
+        icon={Settings} 
+        label="Settings" 
+        active={activeTab === "settings"} 
+        onClick={() => handleTabClick("settings")} 
+      />
+      <SidebarItem 
+        icon={User} 
+        label="Profile" 
+        active={activeTab === "profile"} 
+        onClick={() => handleTabClick("profile")} 
+      />
+    </div>
+  );
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <Sidebar className="border-r">
-          <div className="p-4 border-b">
-            <h1 className="text-xl font-bold text-primary">ExpanceXpert</h1>
-            <p className="text-sm text-muted-foreground">Personal Finance Tracker</p>
-          </div>
-          <SidebarContent className="p-2">
-            <div className="space-y-1">
-              <SidebarItem 
-                icon={Home} 
-                label="Dashboard" 
-                active={activeTab === "dashboard"} 
-                onClick={() => handleTabClick("dashboard")} 
-              />
-              <SidebarItem 
-                icon={CircleDollarSign} 
-                label="Transactions" 
-                active={activeTab === "transactions"} 
-                onClick={() => handleTabClick("transactions")} 
-              />
-              <SidebarItem 
-                icon={PieChart} 
-                label="Categories" 
-                active={activeTab === "categories"} 
-                onClick={() => handleTabClick("categories")} 
-              />
-              <SidebarItem 
-                icon={BarChart} 
-                label="Reports" 
-                active={activeTab === "reports"} 
-                onClick={() => handleTabClick("reports")} 
-              />
-              <SidebarItem 
-                icon={Calendar} 
-                label="Budget" 
-                active={activeTab === "budget"} 
-                onClick={() => handleTabClick("budget")} 
-              />
-              <SidebarItem 
-                icon={Settings} 
-                label="Settings" 
-                active={activeTab === "settings"} 
-                onClick={() => handleTabClick("settings")} 
-              />
-              <SidebarItem 
-                icon={User} 
-                label="Profile" 
-                active={activeTab === "profile"} 
-                onClick={() => handleTabClick("profile")} 
-              />
+        {!isMobile && (
+          <Sidebar className="border-r">
+            <div className="p-4 border-b">
+              <h1 className="text-xl font-bold text-primary">ExpanceXpert</h1>
+              <p className="text-sm text-muted-foreground">Personal Finance Tracker</p>
             </div>
-          </SidebarContent>
-          <div className="mt-auto p-4 border-t">
-            <NewTransactionDialog />
-          </div>
-        </Sidebar>
+            <SidebarContent className="p-2">
+              {sidebarContent}
+            </SidebarContent>
+            <div className="mt-auto p-4 border-t">
+              <NewTransactionDialog />
+            </div>
+          </Sidebar>
+        )}
         
         <div className="flex-1 flex flex-col">
-          <header className="border-b p-4 flex items-center">
-            <SidebarTrigger />
-            <div className="ml-4">
+          <header className="border-b p-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {isMobile ? (
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="p-0">
+                    <div className="p-4 border-b">
+                      <h1 className="text-xl font-bold text-primary">ExpanceXpert</h1>
+                      <p className="text-sm text-muted-foreground">Personal Finance Tracker</p>
+                    </div>
+                    <div className="p-4">
+                      {sidebarContent}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              ) : (
+                <SidebarTrigger />
+              )}
               <h2 className="font-semibold">
                 {activeTab === "dashboard" && "Dashboard"}
                 {activeTab === "transactions" && "Transactions"}
@@ -162,40 +188,21 @@ const DashboardLayout = ({ children, activeTab = "dashboard", onTabChange }: Das
               </h2>
             </div>
             
-            {isMobile && (
-              <div className="ml-auto mr-4 flex gap-4">
-                <HeaderIcon 
-                  icon={Home} 
-                  label="Home" 
-                  active={activeTab === "dashboard"} 
-                  onClick={() => handleTabClick("dashboard")} 
-                />
-                <HeaderIcon 
-                  icon={CircleDollarSign} 
-                  label="Transactions" 
-                  active={activeTab === "transactions"} 
-                  onClick={() => handleTabClick("transactions")} 
-                />
-                <HeaderIcon 
-                  icon={Settings} 
-                  label="Settings" 
-                  active={activeTab === "settings"} 
-                  onClick={() => handleTabClick("settings")} 
-                />
-                <HeaderIcon 
-                  icon={Plus} 
-                  label="New" 
+            <div className="flex items-center gap-4">
+              {isMobile && (
+                <Button
+                  size="icon"
+                  variant="ghost"
                   onClick={handleMobileNewTransaction}
-                />
-              </div>
-            )}
-            
-            <div className={isMobile ? "": "ml-auto"}>
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
+              )}
               <UserMenu />
             </div>
           </header>
           
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-4 md:p-6 overflow-auto">
             {children}
           </main>
         </div>
