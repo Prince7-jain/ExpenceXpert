@@ -140,48 +140,6 @@ A modern, responsive personal finance management application built with Next.js,
    
    Navigate to `http://localhost:3000` to see the application running.
 
-## 🏗️ Project Structure
-
-```
-expence-xpert/
-├── public/                 # Static assets
-├── src/
-│   ├── app/               # Next.js App Router pages
-│   │   ├── api/          # API routes
-│   │   │   ├── auth/     # NextAuth configuration
-│   │   │   ├── transactions/ # Transaction CRUD
-│   │   │   └── budgets/  # Budget CRUD
-│   │   ├── login/        # Login page
-│   │   ├── globals.css   # Global styles
-│   │   ├── layout.tsx    # Root layout
-│   │   └── page.tsx      # Home page
-│   ├── components/        # React components
-│   │   ├── ui/           # shadcn/ui components
-│   │   ├── DashboardPage.tsx
-│   │   ├── TransactionList.tsx
-│   │   ├── BudgetPlanner.tsx
-│   │   └── ...
-│   ├── hooks/            # Custom React hooks
-│   │   ├── useTransactions.ts
-│   │   └── useBudgets.ts
-│   ├── lib/              # Utility functions and configurations
-│   │   ├── auth.ts       # NextAuth configuration
-│   │   ├── mongodb.ts    # Database connection
-│   │   ├── utils.ts      # General utilities
-│   │   └── types.ts      # TypeScript type definitions
-│   ├── models/           # Database models
-│   │   ├── User.ts       # User schema
-│   │   ├── Transaction.ts # Transaction schema
-│   │   └── Budget.ts     # Budget schema
-│   └── middleware.ts     # Next.js middleware for auth
-├── .env.example          # Environment variables template
-├── .env.local            # Local environment variables (create this)
-├── components.json       # shadcn/ui configuration
-├── tailwind.config.js    # Tailwind CSS configuration
-├── tsconfig.json         # TypeScript configuration
-├── next.config.js        # Next.js configuration
-└── package.json          # Project dependencies and scripts
-```
 
 ## 🔐 Authentication Flow
 
@@ -192,78 +150,8 @@ expence-xpert/
 5. NextAuth creates/updates user in MongoDB
 6. User is redirected to dashboard with session
 
-## 🗄️ Database Schema
 
-### User Model
-```typescript
-{
-  _id: ObjectId,
-  name: string,
-  email: string,
-  image?: string,
-  emailVerified?: Date,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
 
-### Transaction Model
-```typescript
-{
-  _id: ObjectId,
-  userId: ObjectId,
-  amount: number,
-  type: 'income' | 'expense',
-  category: string,
-  description: string,
-  date: Date,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-### Budget Model
-```typescript
-{
-  _id: ObjectId,
-  userId: ObjectId,
-  category: string,
-  amount: number,
-  spent: number,
-  period: 'monthly' | 'weekly' | 'yearly',
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-## 🎨 Customization
-
-### Theme Configuration
-
-The application supports both light and dark themes. You can customize the color scheme by modifying the CSS variables in `src/app/globals.css`:
-
-```css
-:root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --primary: 221.2 83.2% 53.3%;
-  /* ... other color variables */
-}
-```
-
-### Adding New API Routes
-
-1. Create new route in `src/app/api/`
-2. Implement GET, POST, PUT, DELETE methods as needed
-3. Add authentication checks using `getServerSession`
-4. Follow RESTful conventions
-
-### Extending Database Models
-
-1. Update model files in `src/models/`
-2. Create corresponding API routes
-3. Update TypeScript interfaces
-4. Create custom hooks for data fetching
 
 ## 🚀 Deployment
 
@@ -306,24 +194,6 @@ GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
 
-## 🔧 API Endpoints
-
-### Authentication
-- `GET /api/auth/session` - Get current session
-- `POST /api/auth/signin` - Sign in
-- `POST /api/auth/signout` - Sign out
-
-### Transactions
-- `GET /api/transactions` - Get user transactions
-- `POST /api/transactions` - Create new transaction
-- `PUT /api/transactions/[id]` - Update transaction
-- `DELETE /api/transactions/[id]` - Delete transaction
-
-### Budgets
-- `GET /api/budgets` - Get user budgets
-- `POST /api/budgets` - Create new budget
-- `PUT /api/budgets/[id]` - Update budget
-- `DELETE /api/budgets/[id]` - Delete budget
 
 ## 🤝 Contributing
 
@@ -333,9 +203,6 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
