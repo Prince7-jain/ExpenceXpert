@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "ExpenseXpert - Full Stack Expense Tracking Application",
   "scripts": {
-    "install-all": "npm install && cd client && npm install && cd ../server && npm install",
+    "install-all": "npm install --legacy-peer-deps && cd client && npm install --legacy-peer-deps && cd ../server && npm install --legacy-peer-deps",
     "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
     "build": "cd client && npm run build && cd ../server && npm run build",
     "start": "concurrently \"cd server && npm start\" \"cd client && npm start\""
