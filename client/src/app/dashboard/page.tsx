@@ -93,7 +93,7 @@ export default function DashboardPage() {
           {/* Stats Cards Skeleton */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => (
-              <Card key={i}>
+              <Card key={`skeleton-card-${i}`}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <Skeleton className="h-4 w-24" />
                   <Skeleton className="h-4 w-4" />
@@ -114,7 +114,7 @@ export default function DashboardPage() {
             <CardContent>
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="flex items-center justify-between">
+                  <div key={`skeleton-transaction-${i}`} className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <Skeleton className="h-8 w-8 rounded-full" />
                       <div>
