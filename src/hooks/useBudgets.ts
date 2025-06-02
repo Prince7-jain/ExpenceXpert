@@ -62,6 +62,10 @@ export const useBudgets = () => {
     }
   }, [session]);
 
+  useEffect(() => {
+    fetchBudgets();
+  }, [fetchBudgets]);
+
   return {
     budgets,
     isLoading,

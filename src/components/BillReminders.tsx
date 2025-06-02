@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,6 +41,10 @@ const BillReminders = () => {
       loadBills();
     }
   }, [session?.user]);
+
+  useEffect(() => {
+    loadBills();
+  }, [loadBills]);
 
   const loadBills = async () => {
     if (!session?.user?.id) return;

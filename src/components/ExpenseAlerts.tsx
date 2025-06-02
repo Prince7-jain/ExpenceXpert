@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,10 @@ const ExpenseAlerts = () => {
       loadAlerts();
     }
   }, [session?.user]);
+
+  useEffect(() => {
+    loadAlerts();
+  }, [loadAlerts]);
 
   const loadAlerts = async () => {
     if (!session?.user?.id) return;

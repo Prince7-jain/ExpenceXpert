@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/popover";
 import { useSession } from "next-auth/react";
 import { useTransactions } from "@/hooks/useTransactions";
+import Image from 'next/image';
 
 const expenseCategories = [
   { id: "food", name: "Food & Dining", color: "#FF5722" },
@@ -322,9 +323,11 @@ const NewTransactionDialog = ({ triggerOpen, onOpenChange }: NewTransactionDialo
                       </Button>
                     </div>
                     {receiptPreview && (
-                      <img 
-                        src={receiptPreview} 
-                        alt="Receipt preview" 
+                      <Image
+                        src={receiptPreview}
+                        alt="Receipt preview"
+                        width={128}
+                        height={128}
                         className="w-full max-h-32 object-cover rounded border"
                       />
                     )}

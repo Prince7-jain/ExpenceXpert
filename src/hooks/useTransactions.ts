@@ -64,6 +64,10 @@ export const useTransactions = () => {
     }
   }, [session]);
 
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
   return {
     transactions,
     isLoading,

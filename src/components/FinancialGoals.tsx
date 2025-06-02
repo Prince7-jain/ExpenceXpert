@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,6 +28,10 @@ const FinancialGoals = () => {
       loadGoals();
     }
   }, [session?.user]);
+
+  useEffect(() => {
+    loadGoals();
+  }, [loadGoals]);
 
   const loadGoals = async () => {
     if (!session?.user?.id) return;
