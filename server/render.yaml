@@ -14,4 +14,6 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: DB_NAME
-        value: expencexpert 
+        value: expencexpert
+    healthCheckPath: /api/health
+    autoDeploy: true 

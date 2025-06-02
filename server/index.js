@@ -11,7 +11,7 @@ import userRoutes from './routes/users.js';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 12001;
+const PORT = process.env.PORT || 10000;
 
 // Connect to MongoDB
 connectDB();
@@ -24,16 +24,27 @@ app.use(helmet({
 
 // CORS configuration
 app.use(cors({
-  origin: true, // Allow all origins in development
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://expencexpert.onrender.com', 'https://expencexpert-frontend.onrender.com'] 
+    : true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Middleware
-app.use(morgan('dev')); // Changed to dev for better logging
+app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Welcome to ExpenceXpert API',
+    status: 'running',
+    version: '1.0.0'
+  });
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
