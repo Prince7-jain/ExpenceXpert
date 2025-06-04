@@ -1,4 +1,4 @@
-# ExpenceXpert - Personal Finance Manager
+# ExpenceXpert - A Personal Finance Manager
 
 A comprehensive personal finance tracker with modern dark theme UI built with Next.js, Express.js, and MongoDB. Track your income, expenses, and visualize your financial data with beautiful charts and analytics.
 
@@ -18,8 +18,8 @@ A comprehensive personal finance tracker with modern dark theme UI built with Ne
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 14 with App Router
-- **Frontend**: React 18, TypeScript
+- **Framework**: Next.js  with App Router
+- **Frontend**: React , TypeScript
 - **Authentication**: NextAuth.js with Google OAuth
 - **Database**: MongoDB with Mongoose ODM
 - **Styling**: Tailwind CSS, shadcn/ui components
@@ -170,14 +170,6 @@ Built with shadcn/ui components:
 2. Set environment variables
 3. Configure build and start commands
 4. Deploy with automatic SSL
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 
 ## 🙏 Acknowledgments
