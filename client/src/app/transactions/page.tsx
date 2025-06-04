@@ -51,6 +51,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const transactionSchema = z.object({
   type: z.enum(['income', 'expense']),
@@ -108,8 +109,10 @@ export default function TransactionsPage() {
   const fetchTransactions = async () => {
     try {
       setIsLoading(true);
-      const data = await transactionsAPI.getAll();
-      setTransactions(data);
+      const response = await transactionsAPI.getTransactions({});
+      if (response.success && response.data) {
+        setTransactions(response.data);
+      }
     } catch (error) {
       toast.error('Failed to fetch transactions');
     } finally {
@@ -145,11 +148,19 @@ export default function TransactionsPage() {
   const onSubmit = async (data: TransactionFormData) => {
     try {
       if (editingTransaction) {
-        await transactionsAPI.update(editingTransaction._id, data);
-        toast.success('Transaction updated successfully');
+        const updateResponse = await transactionsAPI.updateTransaction({ id: editingTransaction.id, ...data });
+        if (updateResponse.success) {
+          toast.success('Transaction updated successfully');
+        } else {
+          toast.error(updateResponse.message || 'Failed to update transaction');
+        }
       } else {
-        await transactionsAPI.create(data);
-        toast.success('Transaction created successfully');
+        const createResponse = await transactionsAPI.createTransaction(data);
+        if (createResponse.success) {
+          toast.success('Transaction created successfully');
+        } else {
+          toast.error(createResponse.message || 'Failed to create transaction');
+        }
       }
       
       setIsDialogOpen(false);
@@ -174,8 +185,12 @@ export default function TransactionsPage() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this transaction?')) {
       try {
-        await transactionsAPI.delete(id);
-        toast.success('Transaction deleted successfully');
+        const deleteResponse = await transactionsAPI.deleteTransaction(id);
+        if (deleteResponse.success) {
+          toast.success('Transaction deleted successfully');
+        } else {
+          toast.error(deleteResponse.message || 'Failed to delete transaction');
+        }
         fetchTransactions();
       } catch (error) {
         toast.error('Failed to delete transaction');
@@ -190,6 +205,13 @@ export default function TransactionsPage() {
   };
 
   const allCategories = [...new Set([...categories.income, ...categories.expense])];
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(amount);
+  };
 
   return (
     <DashboardLayout>
@@ -256,16 +278,21 @@ export default function TransactionsPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
-                  <Select onValueChange={(value) => setValue('category', value)}>
+                  <Select
+                    value={watch('category')}
+                    onValueChange={(value) => setValue('category', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories[watchType].map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
+                      {(watchType === 'income' ? categories.income : categories.expense).map(
+                        (category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        )
+                      )}
                     </SelectContent>
                   </Select>
                   {errors.category && (
@@ -277,7 +304,7 @@ export default function TransactionsPage() {
                   <Label htmlFor="description">Description</Label>
                   <Input
                     id="description"
-                    placeholder="Enter description"
+                    placeholder="e.g., Groceries from supermarket"
                     {...register('description')}
                   />
                   {errors.description && (
@@ -298,11 +325,8 @@ export default function TransactionsPage() {
                 </div>
 
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={handleDialogClose}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    {editingTransaction ? 'Update' : 'Create'} Transaction
+                  <Button type="submit" className="w-full">
+                    {editingTransaction ? 'Save Changes' : 'Add Transaction'}
                   </Button>
                 </DialogFooter>
               </form>
@@ -310,27 +334,36 @@ export default function TransactionsPage() {
           </Dialog>
         </div>
 
-        {/* Filters */}
+        {/* Filters and Search */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Filters</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Filters</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearchTerm('');
+                setFilterType('all');
+                setFilterCategory('all');
+              }}
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Reset Filters
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search transactions..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search transactions..."
+                  className="pl-9"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-              
-              <Select value={filterType} onValueChange={(value: any) => setFilterType(value)}>
-                <SelectTrigger className="w-full sm:w-[180px]">
+              <Select value={filterType} onValueChange={(value: 'all' | 'income' | 'expense') => setFilterType(value)}>
+                <SelectTrigger>
                   <SelectValue placeholder="Filter by type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -339,17 +372,14 @@ export default function TransactionsPage() {
                   <SelectItem value="expense">Expense</SelectItem>
                 </SelectContent>
               </Select>
-
-              <Select value={filterCategory} onValueChange={setFilterCategory}>
-                <SelectTrigger className="w-full sm:w-[180px]">
+              <Select value={filterCategory} onValueChange={(value: string) => setFilterCategory(value)}>
+                <SelectTrigger>
                   <SelectValue placeholder="Filter by category" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
                   {allCategories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -360,103 +390,107 @@ export default function TransactionsPage() {
         {/* Transactions List */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Transactions</CardTitle>
+            <CardTitle>All Transactions</CardTitle>
             <CardDescription>
-              {filteredTransactions.length} transaction{filteredTransactions.length !== 1 ? 's' : ''} found
+              A comprehensive list of all your recorded financial transactions.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="flex items-center space-x-4">
-                    <Skeleton className="h-10 w-10 rounded-full" />
-                    <div className="space-y-2 flex-1">
-                      <Skeleton className="h-4 w-[250px]" />
-                      <Skeleton className="h-4 w-[200px]" />
+                  <div key={`skeleton-transaction-${i}`} className="flex items-center justify-between p-4 rounded-lg border border-border">
+                    <div className="flex items-center space-x-3">
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <div>
+                        <Skeleton className="h-4 w-32 mb-1" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
                     </div>
-                    <Skeleton className="h-4 w-[100px]" />
+                    <Skeleton className="h-4 w-24" />
                   </div>
                 ))}
               </div>
-            ) : filteredTransactions.length === 0 ? (
-              <div className="text-center py-8">
-                <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No transactions found</h3>
-                <p className="text-muted-foreground mb-4">
-                  {searchTerm || filterType !== 'all' || filterCategory !== 'all'
-                    ? 'Try adjusting your filters or search term.'
-                    : 'Start by adding your first transaction.'}
-                </p>
-                <Button onClick={() => setIsDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Transaction
-                </Button>
+            ) : filteredTransactions.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-border">
+                  <thead>
+                    <tr className="text-left text-muted-foreground">
+                      <th className="py-2 px-4">Description</th>
+                      <th className="py-2 px-4">Category</th>
+                      <th className="py-2 px-4">Type</th>
+                      <th className="py-2 px-4">Amount</th>
+                      <th className="py-2 px-4">Date</th>
+                      <th className="py-2 px-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTransactions.map((transaction) => (
+                      <tr key={transaction.id} className="border-b border-border last:border-b-0 hover:bg-muted/50 transition-colors">
+                        <td className="py-3 px-4 flex items-center space-x-3">
+                          <div
+                            className={cn(
+                              "flex h-8 w-8 items-center justify-center rounded-full",
+                              transaction.type === 'income' ? 'bg-green-100/20 text-green-500' : 'bg-red-100/20 text-red-500'
+                            )}
+                          >
+                            {transaction.type === 'income' ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                          </div>
+                          <p className="font-medium truncate max-w-[150px] md:max-w-[200px]">
+                            {transaction.description}
+                          </p>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge variant="secondary">{transaction.category}</Badge>
+                        </td>
+                        <td className="py-3 px-4 capitalize">
+                          <Badge variant={transaction.type === 'income' ? 'default' : 'destructive'}>
+                            {transaction.type}
+                          </Badge>
+                        </td>
+                        <td className={cn("py-3 px-4 font-medium", transaction.type === 'income' ? 'text-green-500' : 'text-red-500')}>
+                          {transaction.type === 'expense' && '-'}{formatCurrency(transaction.amount)}
+                        </td>
+                        <td className="py-3 px-4 text-muted-foreground text-sm">
+                          {format(new Date(transaction.date), 'MMM dd, yyyy')}
+                        </td>
+                        <td className="py-3 px-4">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEdit(transaction)}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDelete(transaction.id)} className="text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ) : (
-              <div className="space-y-4">
-                {filteredTransactions.map((transaction) => (
-                  <div
-                    key={transaction._id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className={`p-2 rounded-full ${
-                        transaction.type === 'income' 
-                          ? 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400'
-                          : 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400'
-                      }`}>
-                        {transaction.type === 'income' ? (
-                          <ArrowUpRight className="h-4 w-4" />
-                        ) : (
-                          <ArrowDownRight className="h-4 w-4" />
-                        )}
-                      </div>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium">{transaction.description}</h4>
-                          <Badge variant="secondary" className="text-xs">
-                            {transaction.category}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="h-3 w-3" />
-                          {format(new Date(transaction.date), 'MMM dd, yyyy')}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <div className={`text-lg font-semibold ${
-                        transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                      </div>
-                      
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEdit(transaction)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDelete(transaction._id)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                ))}
+              <div className="text-center text-muted-foreground py-8">
+                <p>No transactions found matching your criteria.</p>
+                <p>Try adjusting your filters or adding new transactions.</p>
+                <Button onClick={() => {
+                  setSearchTerm('');
+                  setFilterType('all');
+                  setFilterCategory('all');
+                }} className="mt-4">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Reset Filters
+                </Button>
               </div>
             )}
           </CardContent>

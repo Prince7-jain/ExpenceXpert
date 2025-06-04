@@ -24,6 +24,7 @@ import { transactionsAPI } from '@/lib/api';
 import { Transaction, TransactionSummary } from '@/types';
 import { format } from 'date-fns';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -224,12 +225,7 @@ export default function DashboardPage() {
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Recent Transactions</CardTitle>
-                <CardDescription>
-                  Your latest financial activities
-                </CardDescription>
-              </div>
+              <CardTitle>Recent Transactions</CardTitle>
               <Link href="/transactions">
                 <Button variant="outline" size="sm">
                   View All
@@ -242,33 +238,50 @@ export default function DashboardPage() {
                   {recentTransactions.map((transaction) => (
                     <div
                       key={transaction.id}
-                      className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                      className="flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                        <div
+                          className={cn(
+                            "flex h-8 w-8 items-center justify-center rounded-full",
+                            getTransactionColor(transaction.type)
+                          )}
+                        >
                           {getTransactionIcon(transaction.type)}
                         </div>
                         <div>
-                          <p className="text-sm font-medium">
+                          <p className="text-sm font-medium leading-none truncate max-w-[150px] sm:max-w-none">
                             {transaction.description}
                           </p>
-                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                            <span>{transaction.category}</span>
-                            <span>•</span>
-                            <span>{format(new Date(transaction.date), 'MMM dd')}</span>
-                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {transaction.category} • {
+                              format(new Date(transaction.date), "MMM dd, yyyy")
+                            }
+                          </p>
                         </div>
                       </div>
-                      <div className={`text-sm font-medium ${getTransactionColor(transaction.type)}`}>
-                        {transaction.type === 'income' ? '+' : '-'}
+                      <div
+                        className={cn(
+                          "font-medium",
+                          getTransactionColor(transaction.type)
+                        )}
+                      >
+                        {transaction.type === "expense" && "-"}
                         {formatCurrency(transaction.amount)}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-6 text-muted-foreground">
-                  No recent transactions
+                <div className="text-center text-muted-foreground py-8">
+                  <p>No recent transactions.</p>
+                  <p>Start by adding a new transaction to see it here.</p>
+                  <Link href="/transactions/new" className="mt-4 inline-block">
+                    <Button variant="outline">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add First Transaction
+                    </Button>
+                  </Link>
                 </div>
               )}
             </CardContent>
@@ -306,6 +319,63 @@ export default function DashboardPage() {
                   Export Data
                 </Button>
               </Link>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Categories Overview and Monthly Overview */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Categories Overview</CardTitle>
+              <Button variant="outline" size="sm" className="h-8">
+                <Filter className="mr-2 h-4 w-4" />
+                Filter
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {/* This section would typically display a pie chart or bar chart of categories */}
+              {summary && summary.totalTransactions > 0 ? (
+                <div className="h-[300px]">Chart Placeholder</div>
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  <p>No categories to display.</p>
+                  <p>Add transactions to see your spending breakdown.</p>
+                  <Link href="/transactions/new" className="mt-4 inline-block">
+                    <Button variant="outline">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Transaction
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Monthly Overview</CardTitle>
+              <Button variant="outline" size="sm" className="h-8">
+                <Calendar className="mr-2 h-4 w-4" />
+                Select Month
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {/* This section would typically display a line chart of monthly trends */}
+              {summary && summary.totalTransactions > 0 ? (
+                <div className="h-[300px]">Chart Placeholder</div>
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  <p>No monthly data available.</p>
+                  <p>Add transactions to see your financial trends over time.</p>
+                  <Link href="/transactions/new" className="mt-4 inline-block">
+                    <Button variant="outline">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Transaction
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
